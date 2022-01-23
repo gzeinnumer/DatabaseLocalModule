@@ -3,7 +3,6 @@ package com.gzeinnumer.dlm.helper;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.gzeinnumer.esc.SQLiteLIB;
 import com.gzeinnumer.esc.struck.SQLiteTable;
@@ -25,22 +24,25 @@ public class SqliteMaster extends SQLiteLIB<SqliteMaster> {
         this.sqLiteDatabase = sqLiteDatabase;
     }
 
-    private static final String TAG = "asafasfagasfasfa";
-
-    public List<String> query(String[] table) {
-        String query;
-        if (table!=null){
-            StringBuffer sb = new StringBuffer();
-            for(int i = 0; i < table.length; i++) {
-                sb.append("'"+table[i]+"',");
-            }
-            String str = sb.toString().substring(0, sb.lastIndexOf(","));
-            query = "SELECT name FROM sqlite_master WHERE type='table' and name != 'android_metadata' and name != 'sqlite_sequence' and name!='room_master_table' and name in ("+str+") order by name asc;";
-        } else {
-            query = "SELECT name FROM sqlite_master WHERE type='table' and name != 'android_metadata' and name != 'sqlite_sequence' and name!='room_master_table' order by name asc;";
+    public List<String> query(String[] tableInclude) {
+        String[] tableExclude = {"android_metadata","sqlite_sequence","room_master_table"};
+        StringBuilder sbEx = new StringBuilder();
+        for(int i = 0; i < tableExclude.length; i++) {
+            sbEx.append("'").append(tableExclude[i]).append("',");
         }
+        String strExclude = sbEx.substring(0, sbEx.lastIndexOf(","));
 
-        query = "SELECT name FROM sqlite_master WHERE type='table'  order by name asc;";
+        String query;
+        if (tableInclude!=null){
+            StringBuilder sbIn = new StringBuilder();
+            for (String s : tableInclude) {
+                sbIn.append("'").append(s).append("',");
+            }
+            String strInclude = sbIn.substring(0, sbIn.lastIndexOf(","));
+            query = "SELECT name FROM sqlite_master WHERE type='table' and name not in ("+strExclude+") and name in ("+strInclude+") order by name asc;";
+        } else {
+            query = "SELECT name FROM sqlite_master WHERE type='table' and name not in ("+strExclude+") order by name asc;";
+        }
 
         List<SqliteMaster> temp = queryData(SqliteMaster.class, sqLiteDatabase, query);
         List<String> list = new ArrayList<>();
@@ -50,7 +52,7 @@ public class SqliteMaster extends SQLiteLIB<SqliteMaster> {
         return list;
     }
 
-    public List<String> GetColumns(String tableName) {
+    public List<String> getColumns(String tableName) {
         List<String> ar = null;
         try (Cursor c = sqLiteDatabase.rawQuery("select * from " + tableName + " limit 1", null)) {
             if (c != null) {
@@ -64,7 +66,7 @@ public class SqliteMaster extends SQLiteLIB<SqliteMaster> {
 
     @SuppressLint("Range,Recycle")
     public List<String> getData(String table) {
-        List<String> list = GetColumns(table);
+        List<String> list = getColumns(table);
         String query = "SELECT *, ROW_NUMBER() OVER() as LineNo  FROM " + table + " order by LineNo DESC;";
 
         Cursor cursor = sqLiteDatabase.rawQuery(query, null);
@@ -72,16 +74,13 @@ public class SqliteMaster extends SQLiteLIB<SqliteMaster> {
         List<String> temp = new ArrayList<>();
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-//                String msg = "{";
                 String msg = "";
                 for (int i = 0; i < list.size(); i++) {
                     String data = cursor.getString(cursor.getColumnIndex(list.get(i)));
-//                    String build = "\n\t\"" + list.get(i) + "\"" + " : " + "\"" + data + "\",";
-                    String build = list.get(i) + " = " +  data + ",\n";
+                    String build = list.get(i) + " => " +  data + ",\n";
                     msg = msg + build;
                 }
                 msg = msg.substring(0, msg.lastIndexOf(","));
-//                msg = msg + "\n}";
                 temp.add(msg);
             }
         }
