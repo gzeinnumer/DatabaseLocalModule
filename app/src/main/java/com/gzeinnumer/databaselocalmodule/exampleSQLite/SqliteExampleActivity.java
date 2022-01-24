@@ -12,6 +12,8 @@ import com.gzeinnumer.databaselocalmodule.exampleRoom.data.AppDatabase;
 import com.gzeinnumer.databaselocalmodule.exampleSQLite.data.DBInstance;
 import com.gzeinnumer.databaselocalmodule.exampleSQLite.entity.Table1;
 import com.gzeinnumer.dlm.helper.DataModule;
+import com.nambimobile.widgets.efab.FabOption;
+import com.nambimobile.widgets.efab.FabOption;
 
 public class SqliteExampleActivity extends AppCompatActivity {
 
@@ -32,9 +34,14 @@ public class SqliteExampleActivity extends AppCompatActivity {
 //        table1.insert();
 //        table1.insert();
 
-        Button btnDialog = findViewById(R.id.btn_dialog);
-        btnDialog.setOnClickListener(view -> {
-            DataModule.newInstanse(this, sqLiteDatabase).addTable("table1","table2").build();
+        FabOption fo1 = findViewById(R.id.fo_1);
+        fo1.setOnClickListener(view -> {
+            DataModule.newInstanse(this, sqLiteDatabase).build();
+        });
+
+        FabOption fo2 = findViewById(R.id.fo_2);
+        fo2.setOnClickListener(view -> {
+            DataModule.newInstanse(this, sqLiteDatabase).addTable("table1").build();
         });
     }
 }

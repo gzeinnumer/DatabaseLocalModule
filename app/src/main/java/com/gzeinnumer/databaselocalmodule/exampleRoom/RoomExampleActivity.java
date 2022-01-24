@@ -1,17 +1,14 @@
 package com.gzeinnumer.databaselocalmodule.exampleRoom;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gzeinnumer.databaselocalmodule.R;
 import com.gzeinnumer.databaselocalmodule.exampleRoom.data.AppDatabase;
-import com.gzeinnumer.databaselocalmodule.exampleRoom.entity.SampleTable;
-import com.gzeinnumer.databaselocalmodule.exampleSQLite.SqliteExampleActivity;
 import com.gzeinnumer.dlm.helper.DataModule;
+import com.nambimobile.widgets.efab.FabOption;
 
 public class RoomExampleActivity extends AppCompatActivity {
 
@@ -33,9 +30,14 @@ public class RoomExampleActivity extends AppCompatActivity {
 
         SQLiteDatabase appDatabase = AppDatabase.getDatabase(getApplicationContext()).getSQLiteDB(getApplicationContext());
 
-        Button btnDialog = findViewById(R.id.btn_dialog);
-        btnDialog.setOnClickListener(view -> {
+        FabOption fo1 = findViewById(R.id.fo_1);
+        fo1.setOnClickListener(view -> {
             DataModule.newInstanse(this, appDatabase).build();
+        });
+
+        FabOption fo2 = findViewById(R.id.fo_2);
+        fo2.setOnClickListener(view -> {
+            DataModule.newInstanse(this, appDatabase).addTable("sample_table").build();
         });
     }
 }
